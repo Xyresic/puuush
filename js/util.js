@@ -2,10 +2,10 @@
 
 function util_make_2d_array(height, width, val) {
     // (int, int, Any) -> [[Any]]
-    var res = [];
-    for (var i = 0; i < height; ++i) {
-        var line = [];
-        for (var j = 0; j < width; ++j) {
+    let res = [];
+    for (let i = 0; i < height; ++i) {
+        let line = [];
+        for (let j = 0; j < width; ++j) {
             line.push(val);
         }
         res.push(line);
@@ -15,10 +15,10 @@ function util_make_2d_array(height, width, val) {
 
 function util_copy_2d_array(arr) {
     // ([[Any]]) -> [[Any]]
-    var res = [];
-    for (var i = 0; i < arr.length; ++i) {
-        var line = [];
-        for (var j = 0; j < arr[i].length; ++j) {
+    let res = [];
+    for (let i = 0; i < arr.length; ++i) {
+        let line = [];
+        for (let j = 0; j < arr[i].length; ++j) {
             line.push(arr[i][j]);
         }
         res.push(line);
@@ -45,16 +45,16 @@ function _util_is_checkable(field) {
 function util_serialize_form(form) {
     util_assert(typeof form === 'object' && form.nodeName === "FORM");
 
-    var vars = {};
-    for (var field of form.elements) {
+    let vars = {};
+    for (let field of form.elements) {
         if (_util_ignore_field(field)) continue;
         if (!_util_is_checkable(field) || field.checked) {
             vars[field.name] = field.value;
         }
     }
 
-    var strings = [];
-    for (var k in vars) {
+    let strings = [];
+    for (let k in vars) {
         strings.push(encodeURIComponent(k) + '=' + encodeURIComponent(vars[k]));
     }
     return strings.join('&');
@@ -63,13 +63,13 @@ function util_serialize_form(form) {
 function util_deserialize_form(form, query) {
     util_assert(typeof form === 'object' && form.nodeName === "FORM");
 
-    var vars = {};
-    for (var v of query.split('&')) {
-        var pair = v.split('=');
+    let vars = {};
+    for (let v of query.split('&')) {
+        let pair = v.split('=');
         vars[decodeURIComponent(pair[0])] = decodeURIComponent(pair[1]);
     }
 
-    for (var field of form.elements) {
+    for (let field of form.elements) {
         if (_util_ignore_field(field)) continue;
         if (!(field.name in vars)) continue;
         if (_util_is_checkable(field)) {

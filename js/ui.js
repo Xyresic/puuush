@@ -1,21 +1,21 @@
 'use strict';
 
-var CANVAS_TILE_SIZE = 32;
-var CANVAS_TILES = {};
+let CANVAS_TILE_SIZE = 32;
+let CANVAS_TILES = {};
 
-var canvas_tiles_to_load = 0;
+let canvas_tiles_to_load = 0;
 
 function ui_state_to_text(state) {
     // (State) -> String
-    var lines = [];
+    let lines = [];
 
     if (state.won) {
         lines.push('YOU HAVE WON');
     }
 
-    for (var y = 0; y < state.level.height; ++y) {
-        var line = [];
-        for (var x = 0; x < state.level.width; ++x) {
+    for (let y = 0; y < state.level.height; ++y) {
+        let line = [];
+        for (let x = 0; x < state.level.width; ++x) {
             if ((y === state.y) && (x === state.x)) {
                 line.push('@');
                 continue;
@@ -61,17 +61,17 @@ function ui_state_to_text(state) {
 
 function ui_parse_map(map_text) {
     // String -> {height: int, width: int, map: [[TILE_*]], start_y: int, start_x: int}
-    var lines = map_text.replace(/^\n|\n$/g, '').split('\n');
-    var res = {
+    let lines = map_text.replace(/^\n|\n$/g, '').split('\n');
+    let res = {
         height: lines.length,
         width: Math.max(...lines.map(l => l.length))
     }
 
-    var map = [];
-    for (var i = 0; i < lines.length; ++i) {
-        var map_line = [];
+    let map = [];
+    for (let i = 0; i < lines.length; ++i) {
+        let map_line = [];
 
-        for (var j = 0; j < res.width; ++j) {
+        for (let j = 0; j < res.width; ++j) {
             if (lines[i][j] === undefined) {
                 map_line.push(TILE_EMPTY);
             }
@@ -135,7 +135,7 @@ function ui_parse_map(map_text) {
 
 function ui_make_image(src) {
     canvas_tiles_to_load++;
-    var res = new Image();
+    let res = new Image();
     res.src = src;
     res.onload = function () {canvas_tiles_to_load--};
     return res;
@@ -161,7 +161,7 @@ function ui_resize_canvas(canvas, state) {
 }
 
 function ui_redraw_canvas(canvas, state) {
-    var ctx = canvas.getContext('2d');
+    let ctx = canvas.getContext('2d');
     ctx.clearRect(0, 0, CANVAS_TILE_SIZE * state.level.width, CANVAS_TILE_SIZE * state.level.height);
 
     if (canvas_tiles_to_load > 0) {
@@ -170,9 +170,9 @@ function ui_redraw_canvas(canvas, state) {
         return;
     }
 
-    for (var i = 0; i < state.level.height; ++i) {
-        for (var j = 0; j < state.level.width; ++j) {
-            var tile = CANVAS_TILES[state.map[i][j]];
+    for (let i = 0; i < state.level.height; ++i) {
+        for (let j = 0; j < state.level.width; ++j) {
+            let tile = CANVAS_TILES[state.map[i][j]];
             if (tile !== undefined)
                 ctx.drawImage(tile, j * CANVAS_TILE_SIZE, i * CANVAS_TILE_SIZE);
             else
@@ -209,11 +209,11 @@ function ui_redraw(state) {
 
 
 
-var ui_file_name;
-var ui_gif_encoder;
-var ui_zip_file;
-var ui_svgtiler_zip_file;
-var ui_frame_count;
+let ui_file_name;
+let ui_gif_encoder;
+let ui_zip_file;
+let ui_svgtiler_zip_file;
+let ui_frame_count;
 
 function ui_toggle_recording() {
     if (ui_gif_encoder === undefined)
@@ -257,13 +257,13 @@ function ui_add_frame() {
         ui_gif_encoder.addFrame($('game_canvas').getContext('2d'));
     }
     if (ui_zip_file !== undefined) {
-        var data = $('game_canvas').toDataURL().split(',')[1];
+        let data = $('game_canvas').toDataURL().split(',')[1];
         ui_zip_file.file(ui_file_name + '/frame-' + ui_frame_count + '.png', data, {
             base64: true,
         });
     }
     if (ui_svgtiler_zip_file !== undefined) {
-        var data = $('game_text').innerText;
+        let data = $('game_text').innerText;
         ui_svgtiler_zip_file.file(ui_file_name + '/frame-' + ui_frame_count + '.asc', data);
     }
     ui_frame_count++;
@@ -273,8 +273,8 @@ function ui_stop_recording() {
     if (ui_gif_encoder !== undefined) {
         ui_add_frame();
         ui_gif_encoder.finish();
-        var binary_gif = ui_gif_encoder.stream().getData();
-        var data_url = 'data:image/gif;base64,'+encode64(binary_gif);
+        let binary_gif = ui_gif_encoder.stream().getData();
+        let data_url = 'data:image/gif;base64,'+encode64(binary_gif);
         $('gif_output').src = data_url;
         ui_gif_encoder = undefined;
     }

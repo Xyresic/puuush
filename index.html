@@ -1,25 +1,25 @@
 <!doctype html>
-<html>
+<html lang='en'>
 <head>
     <meta charset='utf-8'>
     <title>puuush</title>
-    <script type="text/javascript" src="./libs/jsgif/LZWEncoder.js"></script>
-    <script type="text/javascript" src="./libs/jsgif/NeuQuant.js"></script>
-    <script type="text/javascript" src="./libs/jsgif/GIFEncoder.js"></script>
-    <script type="text/javascript" src="./libs/jsgif/b64.js"></script>
-    <script type="text/javascript" src="./libs/FileSaver.js"></script>
-    <script type="text/javascript" src="./libs/jszip.js"></script>
-    <script src="./libs/underscore.js"></script>
-    <script>JSCLASS_PATH = "./libs/jsclass"</script>
-    <script src="./libs/jsclass/loader-browser.js"><!--because regular JavaScript sets are SO LIMITED--></script>
+    <script type='text/javascript' src='./libs/jsgif/LZWEncoder.js'></script>
+    <script type='text/javascript' src='./libs/jsgif/NeuQuant.js'></script>
+    <script type='text/javascript' src='./libs/jsgif/GIFEncoder.js'></script>
+    <script type='text/javascript' src='./libs/jsgif/b64.js'></script>
+    <script type='text/javascript' src='./libs/FileSaver.js'></script>
+    <script type='text/javascript' src='./libs/jszip.js'></script>
+    <script src='./libs/underscore.js'></script>
+    <script>JSCLASS_PATH = './libs/jsclass'</script>
+    <script src='./libs/jsclass/loader-browser.js'><!--because regular JavaScript sets are SO LIMITED--></script>
     <script src='./js/util.js'></script>
     <script src='./js/game.js'></script>
     <script src='./js/ui.js'></script>
     <script src='./libs/algo.js'></script>
     <script>
     'use strict';
-    var cur_state;
-    var pressed_keys;
+    let cur_state;
+    let pressed_keys;
 
     function $(id) {
         return document.getElementById(id);
@@ -32,16 +32,17 @@
     function start_game(scroll_to_canvas) {
         $('impossible').innerHTML = ''
         $('start_button').blur();
-        var form = $('level');
+        let form = $('level');
+        let map_details;
 
         try {
-            var map_details = ui_parse_map(form.elements.map.value);
+            map_details = ui_parse_map(form.elements.map.value);
         } catch (e) {
             alert(e);
             return;
         }
 
-        var level = {
+        let level = {
             height: map_details.height,
             width: map_details.width,
             starting_map: map_details.map,
@@ -78,37 +79,39 @@
     }
 
     function update_solver_button(state) {
-        var rules = state.level.rules;
-        $('solve_button').disabled = true;
-        $('solve_error').innerText = '';
+        let rules = state.level.rules;
+        let solve_button = $('solve_button');
+        let solve_error = $('solve_error');
+        solve_button.disabled = true;
+        solve_error.innerText = '';
 
         if (rules.push_strength !== 0 || rules.pull_strength !== 0 || rules.purp_strength !== 1)
-            $('solve_error').innerText = ' (strengths must be 0, 0, 1)';
+            solve_error.innerText = ' (strengths must be 0, 0, 1)';
         else if (rules.purp_slide !== SLIDE_NONE)
-            $('solve_error').innerText = ' (purp sliding should be disabled)';
+            solve_error.innerText = ' (purp sliding should be disabled)';
         else if (rules.simple_path)
-            $('solve_error').innerText = ' (disappearing blocks should be disabled)';
+            solve_error.innerText = ' (disappearing blocks should be disabled)';
         else if (rules.gravity)
-            $('solve_error').innerText = ' (gravity should be disabled)';
+            solve_error.innerText = ' (gravity should be disabled)';
         else if (game_finish_tile(cur_state) == null)
-            $('solve_error').innerText = ' (no finish tile)';
+            solve_error.innerText = ' (no finish tile)';
         else {
-            for (var y = 0; y < state.level.height; ++y) {
-                for (var x = 0; x < state.level.width; ++x) {
-                    var tile = state.map[y][x]
+            for (let y = 0; y < state.level.height; ++y) {
+                for (let x = 0; x < state.level.width; ++x) {
+                    let tile = state.map[y][x]
                     if (tile !== TILE_EMPTY && tile !== TILE_BLOCK && tile !== TILE_FINISH) {
-                        $('solve_error').innerText = ` (invalid tile at row ${y+1}, column ${x+1})`;
+                        solve_error.innerText = ` (invalid tile at row ${y+1}, column ${x+1})`;
                         return;
                     }
                 }
             }
-            $('solve_error').innerText = '';
-            $('solve_button').disabled = false;
+            solve_error.innerText = '';
+            solve_button.disabled = false;
         }
     }
 
     function parse_strength(s) {
-        var x = parseInt(s);
+        let x = parseInt(s);
         return x >= 0 ? x : Infinity;
     }
 
@@ -118,7 +121,7 @@
 
         if (location.hash !== '' && location.hash[0] === '#') {
             try {
-                util_deserialize_form($('level'), location.hash.substr(1));
+                util_deserialize_form($('level'), location.hash.substring(1));
             } catch (e) {
                 console.log('Error parsing the hash string:');
                 console.log(e);
@@ -166,8 +169,8 @@
     }
 
     function move(dy, dx) {
-        var purp_interface = null;
-        var cancel_purp = false;
+        let purp_interface = null;
+        let cancel_purp = false;
         if (dy === 0)
         {
             if (pressed_keys['KeyI'])
@@ -190,10 +193,10 @@
         redraw();
     }
 
-    var legend_visible = false;
+    let legend_visible = false;
     function toggle_legend() {
-        var style = $('legend').style;
-        var button = $('legend_button');
+        let style = $('legend').style;
+        let button = $('legend_button');
         if (legend_visible) {
             style.maxHeight = '0';
             style.opacity = '0';
@@ -212,24 +215,25 @@
     <form id='level'>
         <div class='row'>
             <div class='panel'>
-                <b>Puzzle design:</b>
+                <label for='map'><b>Puzzle design:</b></label>
                 <button type='button' id='legend_button' onclick='toggle_legend()'>Show legend</button>
                 <div id='legend'>
-                    <div class='legend_item'><tt>.</tt> or <tt>&nbsp;</tt> = blank space</div>
-                    <div class='legend_item'><tt>#</tt> = fixed block</div>
-                    <div class='legend_item'><tt>x</tt> = movable block</div>
-                    <div class='legend_item'><tt>|</tt> = vertical movable block</div>
-                    <div class='legend_item'><tt>-</tt> = horizontal movable block</div>
-                    <div class='legend_item'><tt>S</tt> = start</div>
-                    <div class='legend_item'><tt>F</tt> = finish</div>
-                    <div class='legend_item'><tt>^&gt;v&lt;</tt> = diodes</div>
+                    <div class='legend_item'><code>.</code> or <code>&nbsp;</code> = blank space</div>
+                    <div class='legend_item'><code>#</code> = fixed block</div>
+                    <div class='legend_item'><code>x</code> = movable block</div>
+                    <div class='legend_item'><code>|</code> = vertical movable block</div>
+                    <div class='legend_item'><code>-</code> = horizontal movable block</div>
+                    <div class='legend_item'><code>S</code> = start</div>
+                    <div class='legend_item'><code>F</code> = finish</div>
+                    <div class='legend_item'><code>^&gt;v&lt;</code> = diodes</div>
                 </div>
                 <textarea name='map' id='map' rows='10' cols='20' wrap='off'>
-.....xx.............
-.................xxx
-..S..............x.F
-..................xx
-..x.xx.xxx.xxxx...#.</textarea>
+                    .....xx.............
+                    .................xxx
+                    ..S..............x.F
+                    ..................xx
+                    ..x.xx.xxx.xxxx...#.
+                </textarea>
             </div>
             <div class='spacer'></div>
             <div id='settings_panel' class='panel'>
@@ -248,9 +252,9 @@
                         <option value='1' disabled>Moved blocks slide (PullPull)</option>
                         <option value='2' disabled>All blocks in path slide (PullPullPull)</option>
                     </select>
-                    <div class="purp">Purp</div>
-                    <label class="purp"><input type='number' min='-1' value='1' length='3' name='purp_strength' class='strength'></label>
-                    <select name='purp_slide' class="purp">
+                    <div class='purp'>Purp</div>
+                    <label class='purp'><input type='number' min='-1' value='1' length='3' name='purp_strength' class='strength'></label>
+                    <select name='purp_slide' class='purp'>
                         <option value='0' selected>No sliding</option>
                         <option value='1'>Moved blocks slide</option>
                         <option value='2'>All blocks in path slide</option>
@@ -259,11 +263,11 @@
                 </div>
                 <label><input type='checkbox' name='simple_path'> Visited blocks disappear</label>
                 <label><input type='checkbox' name='gravity'> Gravity</label>
-                <input type='checkbox' name='purp'>
+                <label class='purp'><input type='checkbox' class='purp' name='purp'> Purp</label>
                 <div class='spacer'></div>
                 <button type='button' id='start_button' onclick='start_game(true)'><b>start</b> (play puzzle design below)</button>
-                <button type='button' id='solve_button' onclick='solve_purp_1(cur_state)' class="purp">solve reachability<span id='solve_error'></span></button>
-                <label id='impossible' class="purp"></label>
+                <button type='button' id='solve_button' onclick='solve_purp_1(cur_state)' class='purp'>solve reachability<span id='solve_error'></span></button>
+                <label id='impossible' class='purp'></label>
             </div>
         </div>
     </form>
@@ -280,7 +284,7 @@
         <div class='spacer'></div>
         <div id='extra_controls_panel' class='panel'>
             <div><label id='pull_label'><input type='checkbox' id='is_pull'> Pull (hold <kbd>Shift</kbd>)</label></div>
-            <div class="purp"><label id='purp_label'><input type='checkbox' id='is_purp'> Purp (hold <kbd>P</kbd>) (<kbd>I</kbd>: top block, <kbd>J</kbd>: left block, <kbd>K</kbd>: bottom block, <kbd>L</kbd>: right block)</label></div>
+            <div class='purp'><label id='purp_label'><input type='checkbox' id='is_purp'> Purp (hold <kbd>P</kbd>) (<kbd>I</kbd>: top block, <kbd>J</kbd>: left block, <kbd>K</kbd>: bottom block, <kbd>L</kbd>: right block)</label></div>
         </div>
     </div>
     <div id='canvas_wrapper'>
@@ -288,7 +292,7 @@
     </div>
     <hr>
     <details>
-        <summary>ASCII representation (e.g. for <a href="https://github.com/edemaine/svgtiler">SVG Tiler</a>)</summary>
+        <summary>ASCII representation (e.g. for <a href='https://github.com/edemaine/svgtiler'>SVG Tiler</a>)</summary>
         <pre id='game_text'></pre>
     </details>
     <div>
@@ -297,14 +301,14 @@
         <label><input type='number' min='0' value='200' length='4' id='gif_delay' title='Applies to the current and all future frames'> ms/frame</label>
         <label><input type='checkbox' id='gif_repeat' checked> loop</label>
     </div>
-    <div id='gif_wrapper'><img id='gif_output' /></div>
+    <div id='gif_wrapper'><img id='gif_output' alt='gif_output' src=''/></div>
     <div>
         <button id='gif_download' onclick='ui_download_gif()' disabled>Download .gif</button>
         <button id='zip_download' onclick='ui_download_zip()' disabled>Download .zip (png)</button>
         <button id='svgtiler_zip_download' onclick='ui_download_svgtiler_zip()' disabled>Download .zip (asc)</button>
     </div>
     <div class='credits'>
-        <a href="https://github.com/6892-2019/puuush">Source on GitHub</a>.
+        <a href='https://github.com/6892-2019/puuush'>Source on GitHub</a>.
         Robot and flag icons by <a href='https://fontawesome.com' rel='noreferrer'>Font Awesome</a>, thanks!
         GIF recorder powered by <a href='https://github.com/antimatter15/jsgif'>jsgif</a>.
         ZIP files created with <a href='https://stuk.github.io/jszip'>jszip</a>.
